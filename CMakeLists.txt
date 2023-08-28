@@ -8,6 +8,25 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #find_package(glfw3 3.3 REQUIRED)
 #find_package(OpenGL REQUIRED)
 
+
+
+#set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+#MESSAGE( STATUS "CMAKE_INSTALL_RPATH: " "${CMAKE_INSTALL_PREFIX}/lib" )
+#set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+
+#set(CMAKE_SKIP_RPATH TRUE)
+
+set(CMAKE_BUILD_RPATH "./lib")
+
+#set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
+
+#
+#set(CMAKE_SKIP_BUILD_RPATH FALSE)
+#set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+#set(CMAKE_INSTALL_RPATH $ORIGIN)
+
+
 add_library(raylib SHARED IMPORTED) # or STATIC instead of SHARED
 set_target_properties(raylib PROPERTIES
         IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libraylib.so.4.2.0"
@@ -41,7 +60,7 @@ add_executable(${PROJECT_NAME}
         GlobalParams.h GlobalParams.cpp
         Init.h Init.cpp
         #ex0_hello_triangulation.cpp
-        #main_example_p2t.cpp
+        #main_example_p2t.cpprm
         #core_2d_camera_mouse_zoom.c
 )
 
