@@ -8,6 +8,8 @@
 #include "Chassis.h"
 #include "Gun.h"
 
+#include "raylib.h"
+
 
 class RoboTank : public Unit
 {
@@ -19,6 +21,9 @@ class RoboTank : public Unit
     TypeGun gunType;
     Gun *gun;
 
+    Vector2 position; // координаты положения шасси
+
+    float alphaChassis; // угол поворота шасси
 
     float alphaGun; // угол поворота пушки
 
@@ -61,6 +66,8 @@ public:
 
         //x = 0;
 
+        position = {0, 0};
+        alphaChassis = 0;
         alphaGun = 0;
 
         // ====================================================================
@@ -71,6 +78,39 @@ public:
         // ====================================================================
 
     }
+
+    Vector2 getPosition() {
+        return this->position;
+    }
+
+    void setPosition(Vector2 pos) {
+        this->position = pos;
+    }
+
+    float getAngleChassis() {
+        return this->alphaChassis;
+    }
+
+    void setAngleChassis(float angle) {
+        this->alphaChassis = angle;
+    }
+
+    float getAngleGun() {
+        return this->alphaGun;
+    }
+
+    void setAngleGun(float angle) {
+        this->alphaGun = angle;
+    }
+
+    float getWidthChassis() {
+        return this->chassis->width;
+    }
+
+    float getLengthChassis() {
+        return this->chassis->length;
+    }
+
 
 //    std::string Voice() const override {
 //        return "Meow!";

@@ -27,8 +27,12 @@ struct Chassis
             mass = 10.0f;
         }
         else if (type == TypeChassis::Medium) {
-            length = 200.0f;
-            width = 100.0f;
+//            length = 200.0f;
+//            width = 100.0f;
+            //length = 32.0f;
+            //length = 24.0f;
+            length = 20.0f;
+            width = 16.0f;
             mass = 20.0f;
         }
         else if (type == TypeChassis::Big) {

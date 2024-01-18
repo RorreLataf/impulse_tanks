@@ -33,5 +33,6 @@
 
 /addon
 /libs
+/build
 /.vscode
 
