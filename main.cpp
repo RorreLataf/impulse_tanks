@@ -21,8 +21,8 @@
 #include "Robot.h"
 // --------------------------
 
-
 //#define PLATFORM_WEB
+// Вместо этого в CMakeLists.txt добавлено add_compile_definitions(PLATFORM_WEB)
 
 #if defined(PLATFORM_WEB)
     #include <emscripten/emscripten.h>

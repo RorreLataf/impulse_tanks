@@ -2,75 +2,90 @@ cmake_minimum_required(VERSION 3.5)
 
 project(project_impulse_tanks LANGUAGES CXX)
 
+add_definitions(-std=c++17)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-#find_package(glfw3 3.3 REQUIRED)
-#find_package(OpenGL REQUIRED)
-
-
-
-#set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-#MESSAGE( STATUS "CMAKE_INSTALL_RPATH: " "${CMAKE_INSTALL_PREFIX}/lib" )
-#set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-
-#set(CMAKE_SKIP_RPATH TRUE)
-
-set(CMAKE_BUILD_RPATH "./lib")
-
-#set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
-
-#
-#set(CMAKE_SKIP_BUILD_RPATH FALSE)
-#set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-#set(CMAKE_INSTALL_RPATH $ORIGIN)
-
-
-add_library(raylib SHARED IMPORTED) # or STATIC instead of SHARED
-set_target_properties(raylib PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libraylib.so.4.2.0"
-        INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/include/raylib"
-)
-
-#add_library(fade2d SHARED IMPORTED) # or STATIC instead of SHARED
-#set_target_properties(fade2d PROPERTIES
-#        IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libfade2d.so"
-#        INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/include/fade2d"
-#)
-
-add_library(poly2tri STATIC IMPORTED) # or STATIC instead of SHARED
-set_target_properties(poly2tri PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libpoly2tri.a"
-        INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/include/poly2tri"
-)
-
-add_library(box2d STATIC IMPORTED) # or STATIC instead of SHARED
-set_target_properties(box2d PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libbox2d.a"
-        INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/include/box2d"
-)
-
 add_executable(${PROJECT_NAME}
         main.cpp
-#        test_texture.cpp
         Unit.h Unit.cpp
         Robot.h Robot.cpp
         Chassis.h Chassis.cpp
         Gun.h Gun.cpp
         GlobalParams.h GlobalParams.cpp
         Init.h Init.cpp
-        #ex0_hello_triangulation.cpp
-        #main_example_p2t.cpprm
-        #core_2d_camera_mouse_zoom.c
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-        #${CMAKE_SOURCE_DIR}/include/raylib
-        #${CMAKE_SOURCE_DIR}/include/poly2tri
-        #${CMAKE_SOURCE_DIR}/include/fade2d
         ${CMAKE_SOURCE_DIR}/include/nlohman_json
 )
 
-#target_link_libraries(${PROJECT_NAME} raylib fade2d poly2tri glfw OpenGL::GL)
-target_link_libraries(${PROJECT_NAME} raylib poly2tri box2d)
+target_link_libraries(${PROJECT_NAME} raylib box2d poly2tri)
+
+if (DEFINED EMSCRIPTEN)
+
+  set(BUILD_WEB_HEAP_SIZE 134217728)
+  #set(BUILD_WEB_RESOURCES_PATH "../res")
+  set(BUILD_WEB_RESOURCES_PATH "res")
+
+  add_compile_definitions(PLATFORM_WEB)
+
+  add_library(raylib STATIC IMPORTED) # or STATIC instead of SHARED
+  set_target_properties(raylib PROPERTIES
+          IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libraylib_web.a"
+          INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/include/raylib"
+  )
+
+  add_library(poly2tri STATIC IMPORTED) # or STATIC instead of SHARED
+  set_target_properties(poly2tri PROPERTIES
+          IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libpoly2tri_web.a"
+          INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/include/poly2tri"
+  )
+
+  add_library(box2d STATIC IMPORTED) # or STATIC instead of SHARED
+  set_target_properties(box2d PROPERTIES
+          IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libbox2d_web.a"
+          INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/include/box2d"
+  )
+
+  set(CMAKE_EXECUTABLE_SUFFIX ".html") # This line is used to set your executable to build with the emscripten html template so taht you can directly open it.
+  #set(CMAKE_EXECUTABLE_SUFFIX ".wasm")
+
+  # -s USE_GLFW=3 -s TOTAL_MEMORY=${BUILD_WEB_HEAP_SIZE} -s FORCE_FILESYSTEM=1 -s GL_ENABLE_GET_PROC_ADDRESS
+  # set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY -s GL_ENABLE_GET_PROC_ADDRESS=1")
+  # set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-Os -s SIDE_MODULE=1 -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY -s GL_ENABLE_GET_PROC_ADDRESS=1")
+
+  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-Os -std=c++17 -Wall -Wno-missing-braces -Wunused-result -D_DEFAULT_SOURCE ")
+
+  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Os -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY -s GL_ENABLE_GET_PROC_ADDRESS=1 -s TOTAL_MEMORY=${BUILD_WEB_HEAP_SIZE} -s FORCE_FILESYSTEM=1 --preload-file ${BUILD_WEB_RESOURCES_PATH}")
+
+else()
+  # For Desktop
+  add_library(raylib STATIC IMPORTED) # or STATIC instead of SHARED
+  set_target_properties(raylib PROPERTIES
+          IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libraylib.a"
+          INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/include/raylib"
+  )
+
+  add_library(poly2tri STATIC IMPORTED) # or STATIC instead of SHARED
+  set_target_properties(poly2tri PROPERTIES
+          IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libpoly2tri.a"
+          INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/include/poly2tri"
+  )
+
+  add_library(box2d STATIC IMPORTED) # or STATIC instead of SHARED
+  set_target_properties(box2d PROPERTIES
+          IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libbox2d.a"
+          INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/include/box2d"
+  )
+
+  set(CMAKE_BUILD_RPATH "./lib")
+
+endif()
+
+
+
+
+
+
+
