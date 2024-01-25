@@ -14,15 +14,25 @@ add_executable(${PROJECT_NAME}
         Gun.h Gun.cpp
         GlobalParams.h GlobalParams.cpp
         Init.h Init.cpp
+        Screen.h Screen.cpp
+        LogoScreen.h LogoScreen.cpp
+        TitleScreen.h TitleScreen.cpp
+        GameplayScreen.h GameplayScreen.cpp
+        GameState.h GameState.cpp
+        Physics.h Physics.cpp
+        Map.h Map.cpp
+        Gameplay.h Gameplay.cpp
+##        core_2d_camera.cpp
+#        test_textures_polygon.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_SOURCE_DIR}/include/nlohman_json
 )
 
-target_link_libraries(${PROJECT_NAME} raylib box2d poly2tri)
-
 if (DEFINED EMSCRIPTEN)
+
+  target_link_libraries(${PROJECT_NAME} raylib box2d poly2tri)
 
   set(BUILD_WEB_HEAP_SIZE 134217728)
   #set(BUILD_WEB_RESOURCES_PATH "../res")
@@ -61,6 +71,11 @@ if (DEFINED EMSCRIPTEN)
 
 else()
   # For Desktop
+  set(THREADS_PREFER_PTHREAD_FLAG ON)
+  find_package(Threads REQUIRED)
+
+  target_link_libraries(${PROJECT_NAME} raylib box2d poly2tri ${CMAKE_DL_LIBS} Threads::Threads)
+
   add_library(raylib STATIC IMPORTED) # or STATIC instead of SHARED
   set_target_properties(raylib PROPERTIES
           IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libraylib.a"
@@ -75,9 +90,13 @@ else()
 
   add_library(box2d STATIC IMPORTED) # or STATIC instead of SHARED
   set_target_properties(box2d PROPERTIES
-          IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libbox2d.a"
+          IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libbox2d_ubuntu22.a"
           INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/include/box2d"
   )
+
+  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-ldl")
+
+
 
   set(CMAKE_BUILD_RPATH "./lib")
 

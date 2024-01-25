@@ -117,5 +117,6 @@ public:
 //    }
 };
 
+extern RoboTank *pPlayerRoboTank;
 
 #endif // ROBOT_H
